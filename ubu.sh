@@ -59,7 +59,7 @@ wordPress(){
 	sudo -u www-data sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
-	sudo -u www-data sed -i -e '$adefine('WP_MEMORY_LIMIT', '256M');' /srv/www/wordpress/wp-config.php 
+	sudo -u www-data sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
 	sudo a2ensite wordpress
 	sudo a2enmod rewrite
 	sudo a2dissite 000-default
