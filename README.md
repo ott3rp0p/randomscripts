@@ -1,2 +1,2 @@
-# pythonstuff
+# dumb scripts
 none
