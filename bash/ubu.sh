@@ -77,6 +77,7 @@ moreWordpress(){
 	sudo chmod +x wp-cli.phar
 	sudo mv wp-cli.phar /usr/local/bin/wp
 	cd /srv/www/wordpress/
+	sudo rm -rf wp-content/plugins/akismet
 	sudo -u www-data wp core install --url=$dnsname --title=SuperRealSite --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
 	sudo -u www-data wp plugin activate site-editor
@@ -89,7 +90,7 @@ userStuff(){
 	sudo sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
 	sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 	sudo systemctl reload sshd
-	sudo echo -ne "$dnsname root"|sha256sum > /root/proof.txt
+	sudo echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	sudo echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
 
 }
