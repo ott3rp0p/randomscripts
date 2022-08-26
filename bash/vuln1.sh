@@ -104,7 +104,7 @@ userStuff(){
 	sudo systemctl reload sshd
 	sudo echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	sudo echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
-	sudo echo -ne "Hey Steve, don't forget that it's your job to run the weekly update on this machine. You'll have to do it manually. Make sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
+	sudo echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
 	sudo chmod 644 /home/steve/admin_note.txt
 }
 
@@ -122,7 +122,7 @@ printf "\n\033[33;1minstall plugins/update database/post content\033[0m\n"
 moreWordpress
 printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
 userStuff
-#sudo usermod -s /sbin/nologin ubuntu
+sudo usermod -s /sbin/nologin ubuntu
 #exit
 #exit
 
