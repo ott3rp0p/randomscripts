@@ -8,7 +8,7 @@ read -p 'enter ec2 instance DNS name: ' dnsname
 password="w0rdpr355I54ann0y1NG"
 
 updateUbuntu(){
-	sudo apt update > /dev/null 2>&1
+	sudo apt update
 	sudo apt install  apache2 \
                  ghostscript \
                  libapache2-mod-php \
@@ -23,7 +23,7 @@ updateUbuntu(){
                  php-mysql \
                  php-xml \
                  php-zip \
-                 unzip  --yes > /dev/null 2>&1
+                 unzip  --yes
 }
 
 phpUpdate(){
@@ -32,7 +32,7 @@ phpUpdate(){
 makeWWW(){
 	sudo mkdir -p /srv/www
 	sudo chown www-data: /srv/www
-	wget https://wordpress.org/latest.tar.gz >/dev/null 2>&1
+	wget https://wordpress.org/latest.tar.gz
 	sudo -u www-data tar zx -f latest.tar.gz -C /srv/www 
 	sudo echo '<VirtualHost *:80>
     	DocumentRoot /srv/www/wordpress
@@ -53,7 +53,7 @@ mysqlStuff(){
 	sudo mysql --user=root --execute="CREATE DATABASE wordpress;"
 	sudo mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'w0rdpr355I54ann0y1NG';"
 	sudo mysql --user=root --execute=" GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES"
-	sudo service mysql start 1>/dev/null
+	sudo service mysql start
 }
 
 wordPress(){
@@ -62,16 +62,16 @@ wordPress(){
 	sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
-	sudo a2ensite wordpress 1>/dev/null
-	sudo a2enmod rewrite 1>/dev/null
-	sudo a2dissite 000-default 1>/dev/null
-	sudo service apache2 reload 1>/dev/null
+	sudo a2ensite wordpress
+	sudo a2enmod rewrite
+	sudo a2dissite 000-default
+	sudo service apache2 reload
 }
 
 moreWordpress(){
 	cd /srv/www/wordpress/wp-content/plugins
-	sudo wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip >/dev/null 2>&1
-	sudo unzip *.zip 1>/dev/null
+	sudo wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip
+	sudo unzip *.zip
 	rm *.zip
 	cd /tmp;sudo curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	sudo chmod +x wp-cli.phar
@@ -108,9 +108,13 @@ printf "\n\033[33;1mactivate wordpress/install plugins/update database\033[0m\n"
 moreWordpress
 printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
 userStuff
+sudo usermod -s /sbin/nologin ubuntu
+exit
+exit
 
-#make sure ubuntu and kali are on same network/vpc
-#make sure kali allows 445 inbound
+# make sure ubuntu and kali are on same network/vpc
+# make sure kali allows 445 or some ports inbound
+
 ###############
 
 # Walkthrough
