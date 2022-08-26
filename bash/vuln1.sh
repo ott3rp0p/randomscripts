@@ -123,8 +123,7 @@ moreWordpress
 printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
 userStuff
 sudo usermod -s /sbin/nologin ubuntu
-#exit
-#exit
+
 
 # make sure ubuntu and kali are on same network/vpc
 # make sure kali allows 445 or some ports inbound
@@ -132,7 +131,7 @@ sudo usermod -s /sbin/nologin ubuntu
 ###############
 
 # Walkthrough
-# nmap -sCV from internal IP finds 22/80
+# nmap -sCV from internal IP finds 22 and wordpress site on 80
 # wpscan --url http:// site --plugins-detection aggressive
 # finds site-editor plugin
 # LFI on plugin /etc/passwd finds cleartext password
