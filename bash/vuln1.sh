@@ -98,7 +98,7 @@ moreWordpress(){
 
 userStuff(){
 	sudo useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
-	sudo echo "steve ALL=(root) NOPASSWD: /usr/bin/apt" >> /etc/sudoers
+	sudo echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
 	sudo sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
 	sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 	sudo systemctl reload sshd
