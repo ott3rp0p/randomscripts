@@ -8,15 +8,15 @@ fi
 while true; do
     read -p "Did you run 'sudo apt upgrade' and restart the instance? " yn
     case $yn in
-        [Yy]* ) make install; break;;
+        [Yy]* ) break;;
         [Nn]* ) exit;;
         * ) echo "Please answer yes or no.";;
     esac
 done
 
-printf "\n\033[33;1mRun sudo apt upgrade and restart the machine before runnning this script\033[0m\n"
+printf "\n\033[33;1mRun sudo apt upgrade and restart the machine before running this script\033[0m\n\n"
 
-read -p 'enter ec2 instance DNS name: ' dnsname
+read -p 'Enter EC2 Instance DNS Name: ' dnsname
 password="w0rdpr355I54ann0y1NG"
 
 updateUbuntu(){
@@ -93,7 +93,7 @@ moreWordpress(){
 	sudo -u www-data wp core install --url=$dnsname --title="Super Real Site" --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
 	sudo -u www-data wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
-	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. You should try being aggressive too!" --post_status=publish
+	sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
 }
 
 userStuff(){
@@ -104,7 +104,8 @@ userStuff(){
 	sudo systemctl reload sshd
 	sudo echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	sudo echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
-
+	sudo echo -ne "Hey Steve, don't forget that it's your job to run the weekly update on this machine. You'll have to do it manually. Make sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
+	sudo chmod 644 /home/steve/admin_note.txt
 }
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
