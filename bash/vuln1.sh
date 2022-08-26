@@ -4,6 +4,7 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     echo "Run this as root"
     exit
 fi
+
 read -p 'enter ec2 instance DNS name: ' dnsname
 password="w0rdpr355I54ann0y1NG"
 
@@ -78,10 +79,10 @@ moreWordpress(){
 	sudo mv wp-cli.phar /usr/local/bin/wp
 	cd /srv/www/wordpress/
 	sudo rm -rf wp-content/plugins/akismet
-	sudo -u www-data wp core install --url=$dnsname --title=SuperRealSite --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
+	sudo -u www-data wp core install --url=$dnsname --title="Super Real Site" --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u www-data wp plugin activate site-editor
-
+	sudo -u www-data wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
+	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. You should try being aggressive too!" --post_status=publish
 }
 
 userStuff(){
@@ -105,13 +106,13 @@ printf "\n\033[33;1minstalling wordpress\033[0m\n"
 wordPress
 printf "\n\033[33;1mchanging php.ini\033[0m\n"
 phpUpdate
-printf "\n\033[33;1mactivate wordpress/install plugins/update database\033[0m\n"
+printf "\n\033[33;1minstall plugins/update database/post content\033[0m\n"
 moreWordpress
 printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
 userStuff
-sudo usermod -s /sbin/nologin ubuntu
-exit
-exit
+#sudo usermod -s /sbin/nologin ubuntu
+#exit
+#exit
 
 # make sure ubuntu and kali are on same network/vpc
 # make sure kali allows 445 or some ports inbound
