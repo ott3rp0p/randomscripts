@@ -14,14 +14,12 @@ while true; do
     esac
 done
 
-printf "\n\033[33;1mRun sudo apt upgrade and restart the machine before running this script\033[0m\n\n"
-
 read -p 'Enter EC2 Instance DNS Name: ' dnsname
 password="w0rdpr355I54ann0y1NG"
 
 updateUbuntu(){
-	sudo apt update
-	sudo apt install  apache2 \
+	apt update
+	apt install  apache2 \
                  ghostscript \
                  libapache2-mod-php \
                  mysql-server \
@@ -39,14 +37,14 @@ updateUbuntu(){
 }
 
 phpUpdate(){
-	sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 20M/' /etc/php/8.1/apache2/php.ini
+	sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 20M/' /etc/php/8.1/apache2/php.ini
 }
 makeWWW(){
-	sudo mkdir -p /srv/www
-	sudo chown www-data: /srv/www
+	mkdir -p /srv/www
+	chown www-data: /srv/www
 	wget https://wordpress.org/latest.tar.gz
 	sudo -u www-data tar zx -f latest.tar.gz -C /srv/www 
-	sudo echo '<VirtualHost *:80>
+	echo '<VirtualHost *:80>
     	DocumentRoot /srv/www/wordpress
     	<Directory /srv/www/wordpress>
         	Options FollowSymLinks
@@ -62,10 +60,10 @@ makeWWW(){
 }
 
 mysqlStuff(){
-	sudo mysql --user=root --execute="CREATE DATABASE wordpress;"
-	sudo mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'w0rdpr355I54ann0y1NG';"
-	sudo mysql --user=root --execute=" GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES"
-	sudo service mysql start
+	mysql --user=root --execute="CREATE DATABASE wordpress;"
+	mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'w0rdpr355I54ann0y1NG';"
+	mysql --user=root --execute=" GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES"
+	service mysql start
 }
 
 wordPress(){
@@ -74,22 +72,22 @@ wordPress(){
 	sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
-	sudo a2ensite wordpress
-	sudo a2enmod rewrite
-	sudo a2dissite 000-default
-	sudo service apache2 reload
+	a2ensite wordpress
+	a2enmod rewrite
+	a2dissite 000-default
+	service apache2 reload
 }
 
 moreWordpress(){
 	cd /srv/www/wordpress/wp-content/plugins
-	sudo wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip
-	sudo unzip *.zip
+	wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip
+	unzip *.zip
 	rm *.zip
 	cd /tmp;sudo curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-	sudo chmod +x wp-cli.phar
-	sudo mv wp-cli.phar /usr/local/bin/wp
+	chmod +x wp-cli.phar
+	mv wp-cli.phar /usr/local/bin/wp
 	cd /srv/www/wordpress/
-	sudo rm -rf wp-content/plugins/akismet
+	rm -rf wp-content/plugins/akismet
 	sudo -u www-data wp core install --url=$dnsname --title="Super Real Site" --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
 	sudo -u www-data wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
@@ -97,15 +95,15 @@ moreWordpress(){
 }
 
 userStuff(){
-	sudo useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
-	sudo echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
-	sudo sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
-	sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-	sudo systemctl reload sshd
-	sudo echo -ne "$dnsname root"|md5sum > /root/proof.txt
-	sudo echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
-	sudo echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
-	sudo chmod 644 /home/steve/admin_note.txt
+	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
+	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
+	sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
+	sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+	systemctl reload sshd
+	echo -ne "$dnsname root"|md5sum > /root/proof.txt
+	echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
+	echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
+	chmod 644 /home/steve/admin_note.txt
 }
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
@@ -122,7 +120,7 @@ printf "\n\033[33;1minstall plugins/update database/post content\033[0m\n"
 moreWordpress
 printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
 userStuff
-sudo usermod -s /sbin/nologin ubuntu
+usermod -s /sbin/nologin ubuntu
 
 
 # make sure ubuntu and kali are on same network/vpc
