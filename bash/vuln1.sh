@@ -15,7 +15,7 @@ while true; do
 done
 
 read -p 'Enter EC2 Instance DNS Name: ' dnsname
-password="w0rdpr355I54ann0y1NG"
+password="Th15p@55w0RdD035n0TW0RkF0RPr1vESC"
 
 updateUbuntu(){
 	apt update
@@ -41,9 +41,9 @@ phpUpdate(){
 }
 makeWWW(){
 	mkdir -p /srv/www
-	chown www-data: /srv/www
+	chown steve: /srv/www
 	wget https://wordpress.org/latest.tar.gz
-	sudo -u www-data tar zx -f latest.tar.gz -C /srv/www 
+	sudo -u steve tar zx -f latest.tar.gz -C /srv/www 
 	echo '<VirtualHost *:80>
     	DocumentRoot /srv/www/wordpress
     	<Directory /srv/www/wordpress>
@@ -61,17 +61,17 @@ makeWWW(){
 
 mysqlStuff(){
 	mysql --user=root --execute="CREATE DATABASE wordpress;"
-	mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'w0rdpr355I54ann0y1NG';"
+	mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'Th15p@55w0RdD035n0TW0RkF0RPr1vESC';"
 	mysql --user=root --execute=" GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES"
 	service mysql start
 }
 
 wordPress(){
-	sudo -u www-data cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
-	sudo -u www-data sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
-	sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
-	sudo -u www-data sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
-	sudo -u www-data sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
+	sudo -u steve cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
+	sudo -u steve sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
+	sudo -u steve sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
+	sudo -u steve sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
+	sudo -u steve sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
 	a2ensite wordpress
 	a2enmod rewrite
 	a2dissite 000-default
@@ -91,19 +91,19 @@ moreWordpress(){
 	mv wp-cli.phar /usr/local/bin/wp
 	cd /srv/www/wordpress/
 	rm -rf wp-content/plugins/akismet
-	sudo -u www-data wp core install --url=$dnsname --title="Super Real Site" --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
+	sudo -u steve wp core install --url=$dnsname --title="Super Real Site" --admin_user=steve --admin_email='steve@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u www-data wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
-	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
-	sudo -u www-data wp post delete 1
+	sudo -u steve wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
+	#sudo -u steve wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
+	sudo -u steve wp post delete 1
 }
 
 userStuff(){
 	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
 	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
 	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
-	sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
-	sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+	sudo -u steve mkdir /home/steve/.ssh
+	sudo -u steve ssh-keygen -f /home/steve/.ssh/id_rsa -N ""
 	systemctl reload sshd
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
@@ -114,6 +114,8 @@ userStuff(){
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
 updateUbuntu 
+printf "\n\033[33;1mcreate user/set sudo and ssh-keys\033[0m\n"
+userStuff
 printf "\n\033[33;1mmaking directories\033[0m\n"
 makeWWW
 printf "\n\033[33;1mconfiguring mysql\033[0m\n"
@@ -124,8 +126,6 @@ printf "\n\033[33;1mchanging php.ini\033[0m\n"
 phpUpdate
 printf "\n\033[33;1minstall plugins/update database/post content\033[0m\n"
 moreWordpress
-printf "\n\033[33;1mcreate user/set sudo and ssh permissions\033[0m\n"
-userStuff
 usermod -s /sbin/nologin ubuntu
 
 
