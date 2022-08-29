@@ -80,8 +80,11 @@ wordPress(){
 
 moreWordpress(){
 	cd /srv/www/wordpress/wp-content/plugins
+	wget https://downloads.wordpress.org/plugin/disable-xml-rpc.1.0.1.zip
+	unzip disable-xml-rpc.1.0.1.zip
+	wp plugin activate disable-xml-rpc
 	wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip
-	unzip *.zip
+	unzip 5be8270e880c445e11c59597497468bb-site-editor.zip
 	rm *.zip
 	cd /tmp;sudo curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	chmod +x wp-cli.phar
@@ -91,11 +94,13 @@ moreWordpress(){
 	sudo -u www-data wp core install --url=$dnsname --title="Super Real Site" --admin_user=jeff --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
 	sudo -u www-data wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
-	sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
+	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
+	sudo -u www-data wp post delete 1
 }
 
 userStuff(){
 	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
+	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
 	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
 	sed -i 's/1001:100:/1001:100:w0rdpr355I54ann0y1NG/' /etc/passwd
 	sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
@@ -104,6 +109,7 @@ userStuff(){
 	echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
 	echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
 	chmod 644 /home/steve/admin_note.txt
+
 }
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
