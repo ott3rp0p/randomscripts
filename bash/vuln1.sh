@@ -107,9 +107,9 @@ moreWordpress(){
 	rm -rf wp-content/plugins/akismet
 	sudo -u www-data wp core install --url=$dnsname --title="Super Admin Blog" --admin_user=steve --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u www-data wp post create --post_title="New Update to Super Admin Blog!" --post-author=jeff --post_content="Our brand new admin, Steve, recently installed new plugins to help our great blog run better. Make sure you find them and don’t forget to try them out!" --post_status=publish
-	sudo -u www-data wp comment create --comment_author=steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
-	sudo -u www-data wp comment create --comment_author=jeff --comment_content="I'll help you when I get a chance, Steve. Make sure the shared admin ssh key isn't in your folder" --comment_post_ID=4 --comment-parent=2
+	sudo -u www-data wp post create --post_title="New Update to Super Admin Blog!" --post-author=admin-jeff --post_content="Our brand new admin, Steve, recently installed new plugins to help our great blog run better. Make sure you find them and don’t forget to try them out!" --post_status=publish
+	sudo -u www-data wp comment create --comment_author=admin-steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
+	sudo -u www-data wp comment create --comment_author=admin-jeff --comment_content="I'll help you when I get a chance, Steve. Make sure your ssh keys are protected since we use the same one for the 'shared-admin' account." --comment_post_ID=4
 	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their aggressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
 	sudo -u www-data wp post delete 1
 	sudo -u www-data wp post delete 2
@@ -117,22 +117,22 @@ moreWordpress(){
 
 userStuff(){
 	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
-	echo "jeff ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
-	echo "jeff ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
+	echo "shared-admin ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
+	echo "shared-admin ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
 	sudo -u steve mkdir /home/steve/.ssh
-	sudo -u steve ssh-keygen -f /home/steve/.ssh/id_rsa -N ""
-	useradd -s /bin/bash -m -N jeff
-	sudo -u jeff mkdir /home/jeff/.ssh
-	cp /home/steve/.ssh/* /home/jeff/.ssh/
-	sudo -u jeff /home/jeff/.ssh/id_rsa.pub > /home/jeff/.ssh/authorized_keys
-	chown -R jeff /home/jeff
-	chgrp -R jeff /home/jeff
-	chmod -R 700 /home/jeff
+	sudo -u steve ssh-keygen -t rsa -m PEM -f /home/steve/.ssh/id_rsa -N ""
+	useradd -s /bin/bash -m -N shared-admin
+	sudo -u shared-admin mkdir /home/shared-admin/.ssh
+	cp /home/steve/.ssh/* /home/shared-admin/.ssh/
+	sudo -u shared-admin cp /home/shared-admin/.ssh/id_rsa.pub /home/shared-admin/.ssh/authorized_keys
+	chown -R shared-admin /home/shared-admin
+	chgrp -R shared-admin /home/shared-admin
+	chmod -R 700 /home/shared-admin
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
-	echo -ne "$dnsname local"|md5sum > /home/jeff/local.txt
-	echo -e "Hey Jeff,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  - super admin" > /home/jeff/admin_note.txt
+	echo -ne "$dnsname local"|md5sum > /home/shared-admin/local.txt
+	echo -e "\nDon't forget tor run the weekly update on this machine.\nYou'll have to do it manually.\nThe shared-admin account has permissions.  -admin" > /home/shared-admin/admin_note.txt
 	chmod -R 777 /home/steve
-	chmod 644 /home/jeff/admin_note.txt
+	chmod 644 /home/shared-admin/admin_note.txt
 }
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
