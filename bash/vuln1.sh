@@ -41,9 +41,9 @@ phpUpdate(){
 }
 makeWWW(){
 	mkdir -p /srv/www
-	chown steve: /srv/www
+	chown www-data: /srv/www
 	wget https://wordpress.org/latest.tar.gz
-	sudo -u steve tar zx -f latest.tar.gz -C /srv/www 
+	sudo -u www-data tar zx -f latest.tar.gz -C /srv/www 
 	echo '<VirtualHost *:80>
     	DocumentRoot /srv/www/wordpress
     	<Directory /srv/www/wordpress>
@@ -57,7 +57,7 @@ makeWWW(){
         	Require all granted
     	</Directory>
 		</VirtualHost>' > /etc/apache2/sites-available/wordpress.conf
-	sudo -u steve echo '
+	sudo -u www-data echo '
 		# BEGIN WordPress
 		RewriteEngine On
 		RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -81,11 +81,11 @@ mysqlStuff(){
 }
 
 wordPress(){
-	sudo -u steve cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
-	sudo -u steve sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
-	sudo -u steve sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
-	sudo -u steve sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
-	sudo -u steve sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
+	sudo -u www-data cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
+	sudo -u www-data sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
+	sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
+	sudo -u www-data sed -i "s/password_here/$password/" /srv/www/wordpress/wp-config.php
+	sudo -u www-data sed -i -e '$adefine("WP_MEMORY_LIMIT", "256M");' /srv/www/wordpress/wp-config.php 
 	a2ensite wordpress
 	a2enmod rewrite
 	a2dissite 000-default
@@ -105,25 +105,34 @@ moreWordpress(){
 	mv wp-cli.phar /usr/local/bin/wp
 	cd /srv/www/wordpress/
 	rm -rf wp-content/plugins/akismet
-	sudo -u steve wp core install --url=$dnsname --title="Super Real Site" --admin_user=steve --admin_email='steve@localhost.com' 1>/root/wordpressadmin.txt
+	sudo -u www-data wp core install --url=$dnsname --title="Super Admin Blog" --admin_user=steve --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u steve wp post create --post_title="New Update to Super Real Site!" --post_content="Our brand new admin Steve recently installed new plugins to help our collaborators make the most out of this website. Make sure you find them and don’t forget to try them out!" --post_status=publish
-	sudo -u steve wp comment create --comment_author=steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
-	#sudo -u steve wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their aggressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
-	sudo -u steve wp post delete 1
+	sudo -u www-data wp post create --post_title="New Update to Super Admin Blog!" --post-author=jeff --post_content="Our brand new admin, Steve, recently installed new plugins to help our great blog run better. Make sure you find them and don’t forget to try them out!" --post_status=publish
+	sudo -u www-data wp comment create --comment_author=steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
+	sudo -u www-data wp comment create --comment_author=jeff --comment_content="I'll help you when I get a chance, Steve. Make sure the shared admin ssh key isn't in your folder" --comment_post_ID=4 --comment-parent=2
+	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their aggressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
+	sudo -u www-data wp post delete 1
+	sudo -u www-data wp post delete 2
 }
 
 userStuff(){
 	useradd -s /bin/bash -p $(perl -e'print crypt("w0rdpr355I54ann0y1NG", "aa")') -m -N steve
-	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
-	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
+	echo "jeff ALL=(root) NOPASSWD: /usr/bin/apt update" >> /etc/sudoers
+	echo "jeff ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
 	sudo -u steve mkdir /home/steve/.ssh
 	sudo -u steve ssh-keygen -f /home/steve/.ssh/id_rsa -N ""
+	useradd -s /bin/bash -m -N jeff
+	sudo -u jeff mkdir /home/jeff/.ssh
+	cp /home/steve/.ssh/* /home/jeff/.ssh/
+	sudo -u jeff /home/jeff/.ssh/id_rsa.pub > /home/jeff/.ssh/authorized_keys
+	chown -R jeff /home/jeff
+	chgrp -R jeff /home/jeff
+	chmod -R 700 /home/jeff
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
-	echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
-	echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
+	echo -ne "$dnsname local"|md5sum > /home/jeff/local.txt
+	echo -e "Hey Jeff,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  - super admin" > /home/jeff/admin_note.txt
 	chmod -R 777 /home/steve
-
+	chmod 644 /home/jeff/admin_note.txt
 }
 
 printf "\n\033[33;1mupdating/installing software\033[0m\n"
