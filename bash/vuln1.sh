@@ -1,4 +1,5 @@
 #!/bin/bash
+# create a ubuntu instance in aws and run this script 'sudo bash vuln1.sh'
 
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     echo "Run this as root"
@@ -47,7 +48,7 @@ makeWWW(){
 	chown www-data: /srv/www
 	wget https://wordpress.org/latest.tar.gz
 	sudo -u www-data tar zx -f latest.tar.gz -C /srv/www 
-	echo '<VirtualHost *:80>
+	sudo -u www-data echo '<VirtualHost *:80>
     	DocumentRoot /srv/www/wordpress
     	<Directory /srv/www/wordpress>
         	Options FollowSymLinks
@@ -80,7 +81,7 @@ makeWWW(){
 mysqlStuff(){
 	mysql --user=root --execute="CREATE DATABASE wordpress;"
 	mysql --user=root --execute="CREATE USER wordpress@localhost IDENTIFIED BY 'Th15p@55w0RdD035n0TW0RkF0RPr1vESC';"
-	mysql --user=root --execute=" GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES"
+	mysql --user=root --execute="GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost; FLUSH PRIVILEGES;"
 	service mysql start
 }
 
@@ -133,11 +134,10 @@ userStuff(){
 	cp /home/steve/.ssh/* /home/shared-admin/.ssh/
 	sudo -u shared-admin cp /home/shared-admin/.ssh/id_rsa.pub /home/shared-admin/.ssh/authorized_keys
 	chown -R shared-admin /home/shared-admin
-	chgrp -R shared-admin /home/shared-admin
 	chmod -R 700 /home/shared-admin
 	echo -ne "$dnsname root"|md5sum > /root/proof.txt
 	echo -ne "$dnsname local"|md5sum > /home/shared-admin/local.txt
-	echo -e "\nDon't forget toi0k run the weekly update on this machine.\nYou'll have to do it manually.\nThe shared-admin account has permissions.  -admin" > /home/shared-admin/admin_note.txt
+	echo -e "\nDon't forget to run the weekly update on this machine.\nYou'll have to do it manually.\nThe shared-admin account has permissions.  -admin" > /home/shared-admin/admin_note.txt
 	chmod -R 777 /home/steve
 	chmod 644 /home/shared-admin/admin_note.txt
 }
