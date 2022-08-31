@@ -114,7 +114,7 @@ moreWordpress(){
 	rm -rf wp-content/plugins/akismet
 	sudo -u www-data wp core install --url=$dnsname --title="Super Admin Blog" --admin_user=steve --admin_email='jeff@localhost.com' 1>/root/wordpressadmin.txt
 	sleep 2
-	sudo -u www-data wp post create --post_title="New Update to Super Admin Blog!" --post-author=admin-jeff --post_content="Our brand new admin, Steve, recently installed new plugins to help our great blog run better. Make sure you find them and don’t forget to try them out!" --post_status=publish
+	sudo -u www-data wp post create --post_title="New Update to Super Admin Blog!" --post-author=shared-admin --post_content="Our brand new admin, Steve, recently installed new plugins to help our great blog run better. Make sure you find them and don’t forget to try them out!" --post_status=publish
 	sudo -u www-data wp comment create --comment_author=admin-steve --comment_content="I'm still not sure how to set my home permissions correctly. I think they're too open. Can someone help me?" --comment_post_ID=4
 	sudo -u www-data wp comment create --comment_author=admin-jeff --comment_content="I'll help you when I get a chance, Steve. Make sure your ssh keys are protected since we use the same one for the 'shared-admin' account." --comment_post_ID=4
 	#sudo -u www-data wp post create --post_title="Be Aggressive! B. E. Agressive!" --post_content="The UM cheerleaders have finally brought home the gold thanks to their aggressive efforts. We could all learn a thing or two about being aggressive from this team. Whenever you're just looking around you should try being aggressive too!" --post_status=publish
