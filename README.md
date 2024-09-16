@@ -13,3 +13,5 @@ Install random tools I've used in CTFs. <br>
 
 ### usernames.py
 Create usernames from file
+### htb.py
+hackthebox api interactions. doesn't work anymore since htb api was locked down.
