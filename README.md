@@ -3,7 +3,7 @@
 ## bash
 
 ### vuln1.sh: 
-Run on a ubuntu box. Creates vulnerable machine for testing. Easy difficulty. <br>
+Run on a ubuntu box. vulnerable machine for testing. <br>
 ### tools.sh
 Download tools 
 ### ctftoolsinstall.sh: 
